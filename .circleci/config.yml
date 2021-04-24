@@ -10,9 +10,6 @@ jobs:
     steps:
       - checkout
       - run: ./mvnw -Dmaven.test.skip=true package
-      - run:
-         name: Analyze on SonarCloud
-         command: mvn verify sonar:sonar
       - persist_to_workspace:
          root: ./
          paths:
@@ -22,7 +19,7 @@ jobs:
 
       # build and push Docker image
       - run: |
-          TAG=1.0.$CIRCLE_BUILD_NUM
+          TAG=1.0.$CIRCLE_SHA1
           docker build -t $DOCKERHUB_USERNAME/gitops-foundations:$TAG .
           echo $DOCKERHUB_PASSWORD | docker login -u $DOCKERHUB_USERNAME --password-stdin
           docker push $DOCKERHUB_USERNAME/gitops-foundations:$TAG
@@ -30,4 +27,4 @@ workflows:
   main:
     jobs:
       - build:
-          context: SonarCloud
+          context: DockerHub
